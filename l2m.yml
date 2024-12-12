@@ -1,0 +1,209 @@
+# These patterns are utilized by myst_plugin.py to determine
+# the transformation logic from LaTeX to MyST nodes
+patterns:
+  # - name: equation_reference
+  #   start: '\\ref\{'
+  #   end: '\}'
+  #   capture: between
+  #   flags: []
+  #   node:
+  #     type: crossReference
+  #     kind: equation
+  #     identifier: "{{lower}}"
+  #     template: "Eq. (%s)"
+  #     children:
+  #       - type: text
+  #         value: "Eq. (%s)"
+  #     label: "{{lower}}"
+  #     enumerator: null
+  #     resolved: false
+  #     html_id: "{{lower_dash}}"
+
+  # - name: figure_reference
+  #   start: '\fig{'
+  #   end: '}'
+  #   capture: between
+  #   flags: []
+  #   node:
+  #     type: crossReference
+  #     kind: figure
+  #     identifier: "{{lower}}"
+  #     template: "Figure %s"
+  #     children:
+  #       - type: text
+  #         value: "Figure %s"
+  #     label: "{{lower}}"
+  #     enumerator: null
+  #     resolved: false
+  #     html_id: "{{lower_dash}}"
+
+# Pre-processing transformations (executed by run_latex2md.py)
+# These convert LaTeX to a hybrid of Markdown and LaTeX within .md files
+# Implementation details can be found in mdtransform.py
+substitutions:
+  # Complex parsing, dealt with in l2m_lib.py
+  - name: math_block
+    start: '\['
+    end: '\]'
+    flags: [DOTALL]
+    directive:
+      type: math
+      enumerated: false
+
+  # Complex parsing, dealt with in l2m_lib.py
+  - name: display_math_block
+    start: '\be ' # Do not delete the space after \be
+    end: '\ee'
+    flags: [DOTALL, MULTILINE]
+    directive:
+      type: math
+    extract_label: true
+
+  - name: display_math_block_2
+    start: '\begin{align} '
+    end: '\end{align}'
+    flags: [DOTALL, MULTILINE]
+    directive:
+      type: math
+    extract_label: true
+
+  # Complex parsing, dealt with in l2m_lib.py
+  - name: figure
+    start: "\\begin{figure}"
+    end: "\\end{figure}"
+    directive:
+      type: figure
+      folder: "../static/"
+
+  - name: itemize_alphabold # Do not change the name, case handled in l2m_lib.py
+    escape: false # To enable trickier regex patterns
+    start: "\\\\bl(?!s)" # Use lookahead to avoid \bls, that's a different case
+    end: "\\\\el"
+    directive:
+      type: itemize
+    flags:
+      - DOTALL
+
+  - name: itemize_focus 
+    escape: false # To enable trickier regex patterns
+    start: "\\\\bls" # Use lookahead to avoid \bls, that's a different case
+    end: "\\\\els?"
+    directive:
+      type: card
+    flags:
+      - DOTALL
+
+  - name: itemize_vanilla # Do not change the name, case handled in l2m_lib.py
+    start: "\\begin{itemize}"
+    end: "\\end{itemize}"
+    directive:
+      type: itemize
+    flags:
+      - DOTALL
+
+  - name: chapter
+    start: '\chapter{'
+    end: '}'
+    flags: []
+    directive:
+      type: inline
+    generate_front_matter: true
+
+  - name: section
+    start: '\section{'
+    end: '}'
+    flags: []
+    directive:
+      type: inline
+    replacement: "# {content}"
+
+  - name: subsection
+    start: '\subsection{'
+    end: '}'
+    flags: []
+    directive:
+      type: inline
+    replacement: "## {content}"
+
+  - name: italic_text_curly
+    start: '{\it '
+    end: '}'
+    flags: []
+    directive:
+      type: inline
+    replacement: "_{content}_"
+
+  - name: italic_text_backslash
+    start: '\emph{'
+    end: '}'
+    flags: []
+    directive:
+      type: inline
+    replacement: "_{content}_"
+
+  - name: latex_to_pandoc_citation
+    start: '\cite{'
+    end: '}'
+    delimiter: ','
+    split_prefix: '@'
+    flags: []
+    directive:
+      type: inline
+    replacement: "[@{content}]"
+
+  - name: fig_reference
+    start: '\fig{'
+    end: '}'
+    flags: []
+    sanitize: true
+    directive:
+      type: inline
+    replacement: "[](#{content})"
+
+  - name: fig_reference
+    start: '\probref{'
+    end: '}'
+    flags: []
+    sanitize: true
+    directive:
+      type: inline
+    replacement: "[](#{content})"
+
+  - name: generic_reference
+    start: '\ref{'
+    end: '}'
+    flags: []
+    sanitize: true
+    directive:
+      type: inline
+    replacement: "[](#{content})"
+
+  - name: equation_type_1
+    start: '\eq{'
+    end: '}'
+    flags: []
+    sanitize: true
+    directive:
+      type: inline
+    replacement: "{{numref}}`Eq. (PERCENT_S) <{content}>`" # PERCENT_S will be replaced with %s by l2m_lib.py
+
+  - name: equation_type_2
+    start: '\Eq{'
+    end: '}'
+    flags: []
+    sanitize: true
+    directive:
+      type: inline
+    replacement: "{{numref}}`Equation {{number}} <{content}>`"
+
+  - name: hint
+    start: "\\hint"
+    end: "\n"
+    directive:
+      type: hint
+
+remove_commands:
+  - nin
+  - const
+
+remove_comments: true
