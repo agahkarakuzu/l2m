@@ -1,6 +1,7 @@
 import l2m_lib
 import os
 import re
+import argparse
 from pathlib import Path
 
 def process_directory(input_dir, output_dir, patterns_file):
@@ -31,12 +32,18 @@ def process_all_chapters(base_input_dir, base_output_dir, patterns_file):
             
             process_directory(input_dir, output_dir, patterns_file)
 
-# Define the paths
-base_input_directory = os.path.dirname(os.path.abspath(__file__))
-base_output_directory = os.path.dirname(os.path.abspath(__file__))
-patterns_file = "l2m.yml"
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Convert LaTeX files to Markdown')
+    parser.add_argument('--input', '-i', default=os.path.dirname(os.path.abspath(__file__)),
+                       help='Base input directory containing chapter folders')
+    parser.add_argument('--output', '-o', default=os.path.dirname(os.path.abspath(__file__)),
+                       help='Base output directory for converted files')
+    parser.add_argument('--patterns', '-p', default="l2m.yml",
+                       help='Path to patterns YAML file')
 
-# Process all matching chapter folders
-process_all_chapters(base_input_directory, base_output_directory, patterns_file)
+    args = parser.parse_args()
 
-print("----------------------\n","All transformations complete.","\n----------------------")
+    # Process all matching chapter folders
+    process_all_chapters(args.input, args.output, args.patterns)
+
+    print("----------------------\n","All transformations complete.","\n----------------------")
