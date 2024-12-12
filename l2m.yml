@@ -67,6 +67,15 @@ substitutions:
       type: math
     extract_label: true
 
+
+  - name: itemize_generic 
+    start: "\\begin{enumerate}"
+    end: "\\end{enumerate}"
+    directive:
+      type: itemize
+    flags:
+      - DOTALL
+
   # Complex parsing, dealt with in l2m_lib.py
   - name: figure
     start: "\\begin{figure}"
@@ -74,6 +83,12 @@ substitutions:
     directive:
       type: figure
       folder: "../static/"
+
+  - name: figure
+    start: "\\begin{equation}"
+    end: "\\end{equation}"
+    directive:
+      type: math
 
   - name: itemize_alphabold # Do not change the name, case handled in l2m_lib.py
     escape: false # To enable trickier regex patterns
@@ -117,6 +132,25 @@ substitutions:
       type: inline
     replacement: "# {content}"
 
+###########################################################################
+  # CUSTOM
+  - name: section
+    start: '\begin{aligned}'
+    end: '\end{aligned}'
+    flags: []
+    directive:
+      type: inline
+    replacement: "{content}"
+
+  - name: abstract_block
+    start: '\begin{abstract}'
+    end: '\end{abstract}'
+    flags: [MULTILINE]
+    directive:
+      type: inline
+    replacement: "+++{{ \"part\": \"abstract\" }}\n {content}\n +++"
+###########################################################################
+
   - name: subsection
     start: '\subsection{'
     end: '}'
@@ -125,6 +159,41 @@ substitutions:
       type: inline
     replacement: "## {content}"
 
+  - name: subsubsection
+    start: '\subsubsection{'
+    end: '}'
+    flags: []
+    directive:
+      type: inline
+    replacement: "### {content}"
+
+  - name: anothercitation
+    start: '\citet{'
+    end: '}'
+    delimiter: ','
+    flags: []
+    directive:
+      type: inline
+    replacement: "{{cite:t}}`{content}`"
+
+  - name: anothercitation2
+    start: '\citealp{'
+    end: '}'
+    delimiter: ','
+    flags: []
+    directive:
+      type: inline
+    replacement: "{{cite:alp}}`{content}`"
+
+  - name: anothercitation2
+    start: '\citealt{'
+    end: '}'
+    delimiter: ','
+    flags: []
+    directive:
+      type: inline
+    replacement: "{{cite:alt}}`{content}`"
+
   - name: italic_text_curly
     start: '{\it '
     end: '}'
@@ -132,6 +201,22 @@ substitutions:
     directive:
       type: inline
     replacement: "_{content}_"
+
+  - name: italic_text_generic
+    start: '\textit{'
+    end: '}'
+    flags: []
+    directive:
+      type: inline
+    replacement: "_{content}_"
+
+  - name: bold_text_generic
+    start: '\textbf{'
+    end: '}'
+    flags: []
+    directive:
+      type: inline
+    replacement: "**{content}**"
 
   - name: italic_text_backslash
     start: '\emph{'
@@ -143,6 +228,16 @@ substitutions:
 
   - name: latex_to_pandoc_citation
     start: '\cite{'
+    end: '}'
+    delimiter: ','
+    split_prefix: '@'
+    flags: []
+    directive:
+      type: inline
+    replacement: "[@{content}]"
+
+  - name: latex_to_pandoc_citation2
+    start: '\citep{'
     end: '}'
     delimiter: ','
     split_prefix: '@'
@@ -205,5 +300,20 @@ substitutions:
 remove_commands:
   - nin
   - const
+  - vspace
+  - paragraph
+  - newline
+  - usepackage
+  - linenumbers
+  - modulolinenumbers
+  - lineno
+  - newpage
+  - tableofcontents
+  - bibliographystyle
+  - setcitestyle
+  - author
+  - affil
+  - date
+  - maketitle
 
 remove_comments: true

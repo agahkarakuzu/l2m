@@ -242,6 +242,8 @@ def transform_markdown(content, patterns, commands_to_remove, remove_comments):
                             output += f"\n\n**({letter})** {item}\n\n"
                         elif pattern.get('name') == 'itemize_vanilla':
                             output += f"\n\n* {item}\n\n"
+                        else:
+                            output += f"\n\n* {item}\n\n"
                     return output.strip()
 
                 else:
