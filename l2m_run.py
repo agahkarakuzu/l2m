@@ -20,7 +20,8 @@ def process_directory(input_dir, output_dir, patterns_file):
 
 def process_all_chapters(base_input_dir, base_output_dir, patterns_file):
     # Regular expression to match folder names like "01 My Chapter"
-    chapter_pattern = re.compile(r'^\d{2}\s+.*$')
+    #chapter_pattern = re.compile(r'^\d{2}\s+.*$')
+    chapter_pattern = re.compile(r'^\d{2}[\s_].*$')
 
     for item in os.listdir(base_input_dir):
         full_path = os.path.join(base_input_dir, item)
